@@ -149,18 +149,14 @@ void DividePolynom(list dividend, list divisor, list& quotient, list& remainder)
 	//quotient.resize(remainder.size() - divisor.size() + 1);
     
 	
-	for (int i = 0; i < k; i++)
+	for (int i = 0; i < quotient.size(); i++)
 	{
-        if (quotient[k - i - 1] != nullptr) {
-			cout << quotient[k - i - 1]->val << endl;
-			double coeff = remainder.getAt(remainder.size() - i - 1) / divisor.back();
-			quotient[k - i - 1]->val = coeff;
-			for (int j = 0; j < divisor.size(); j++)
-			{
-				remainder[remainder.size() - i - j - 1]->val -= coeff * divisor[divisor.size() - j - 1]->val;
-			}
-        }
-        
+		double coeff = remainder.getAt(remainder.size() - i - 1) / divisor.back();
+		quotient[quotient.size() - i - 1]->val = coeff;
+		for (int j = 0; j < divisor.size(); j++)
+		{
+			remainder[remainder.size() - i - j - 1]->val -= coeff * divisor[divisor.size() - j - 1]->val;
+		}
 	}
 }
 
