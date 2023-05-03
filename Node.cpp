@@ -1,7 +1,8 @@
-﻿
 
+#include <fstream>
 #include <iostream>
 #include <vector>
+#include <string>
 using namespace std;
 
                     
@@ -32,17 +33,6 @@ struct list {
         }
         last->next = p;
         last = p;
-    }
-    void pop_back(double _val)
-    {
-        Node* p = new Node(_val);
-        if (is_empty()) {
-            first = p;
-            last = p;
-            return;
-        }
-        p->next = first;
-        first = p;
     }
     int size() {
         int i = 0;
@@ -80,36 +70,6 @@ struct list {
         }
         return p;
     }
-    void deleteFirst() {
-        if (first == NULL) return;
-
-        if (first == last) {
-            delete last;
-            first = last = NULL;
-            return;
-        }
-
-        Node* node = first;
-        first = node->next;
-        delete node;
-    }
-    void erase(int k) {
-        if (k < 0) return;
-        if (k == 0) {
-            deleteFirst();
-            return;
-        }
-
-        Node* left = getNodeAt(k - 1);
-        Node* node = left->next;
-        if (node == NULL) return;
-
-        Node* right = node->next;
-        left->next = right;
-        if (node == last) last = left;
-        delete node;
-    }
-    
     double getAt (const int index) {
         if (is_empty()) return 0;
         Node* p = first;
@@ -119,22 +79,13 @@ struct list {
         }
         return p->val;
     }
-    Node* getNodeAt(const int index) {
-        if (is_empty()) return 0;
-        Node* p = first;
-        for (int i = 0; i < index; i++) {
-            p = p->next;
-            if (!p) return 0;
-        }
-        return p;
-    }
     
 };
                     /// Коэффициенты многочлена делимого - dividend, индекс в массиве - степень элемента многочлена
                     /// Коэффициенты многочлена делителя - divisor, индекс в массиве - степень элемента многочлена
                     /// Коэффициенты многочлена частного - quotient, индекс в массиве - степень элемента многочлена
                     /// Коэффициенты многочлена остатка - remainder, индекс в массиве - степень элемента многочлена
-void DividePolynom(list dividend, list divisor, list& quotient, list& remainder)
+void DividePolynom(vector<double> dividend, vector<double> divisor, vector<double>& quotient, vector<double>& remainder)
 {
     if (dividend.back() == 0)
     {
@@ -145,59 +96,115 @@ void DividePolynom(list dividend, list divisor, list& quotient, list& remainder)
         throw new exception("Старший член многочлена делителя не может быть 0");
     }
     remainder = dividend;
-    int k = remainder.size() - divisor.size() + 1;
-	//quotient.resize(remainder.size() - divisor.size() + 1);
     
+	quotient.resize(remainder.size() - divisor.size() + 1);
 	
 	for (int i = 0; i < quotient.size(); i++)
 	{
-		double coeff = remainder.getAt(remainder.size() - i - 1) / divisor.back();
-		quotient[quotient.size() - i - 1]->val = coeff;
+		double coeff = remainder[remainder.size() - i - 1] / divisor.back();
+		quotient[quotient.size() - i - 1] = coeff;
 		for (int j = 0; j < divisor.size(); j++)
 		{
-			remainder[remainder.size() - i - j - 1]->val -= coeff * divisor[divisor.size() - j - 1]->val;
+			remainder[remainder.size() - i - j - 1] -= coeff * divisor[divisor.size() - j - 1];
 		}
 	}
 }
 
 int main()
 {   
+    ifstream fin;
+    fin.open("input.dat");
+    
     setlocale(LC_ALL, "");
     cout << "Hello World!\n";
-    // 2*x^2+4*x+3
-    vector<double> dividend1 = { -42, 0, -12, 1 };
-    // 2*x+1
-    vector<double> divisor1 = { -3, 1 };
-    vector<double> quotient1;
-    vector<double> remainder1;
-    list dividend, divisor, quotient, remainder;
-    dividend.push_back(-42); dividend.push_back(0); dividend.push_back(-12); dividend.push_back(1);
-    divisor.push_back(-3); divisor.push_back(1);
-    
+    // x^3 - 12x^2 -42
 
+    vector<double> dividend = { -42, 0, -12, 1 };
+    // x-3
+    vector<double> divisor = { -3, 1 };
+    vector<double> quotient;
+    vector<double> remainder;
+    vector<double> a1;
+    vector<double> a2;
+    if (!fin)
+    {
+        cout << "Файл не открыт\n\n";
+
+    }
+    else
+    {
+        cout << "Все ОК! Файл открыт!\n\n";
+        int i = 0;
+        for (string line; getline(fin, line); )
+        {
+            
+            string number = "";
+            
+			for (int i = 0; i <= line.length(); i++)
+			{
+				if (line[i] != ' ' ) {
+					number += line[i];
+                    
+				}
+				if((line[i] == ' ') || (i == line.length())) {
+                    double x = stod(number);
+                    //cout << x << endl;1
+                    if (i == 0) {
+                        a1.push_back(x);
+                    }
+                    if (i == 1) {
+                        a2.push_back(x);
+                    }
+                    number = "";
+				}
+
+
+
+			}
+                
+           
+            i++;
+
+        }
+    }
+    for (double x : a1) {
+        cout << x << endl;
+    }
+    for (double x : remainder) {
+        cout << x << endl;
+    }
     DividePolynom(dividend, divisor, quotient, remainder);
+    ofstream fout;
+    fout.open("output.dat");
    
     cout<<"Частное:"<<endl;
+    fout << "Частное:" << endl;
     for (int i = 0; i < quotient.size(); i++)
     {
-        if (quotient.getAt(quotient.size() - i - 1) != 0)
+        if (quotient[quotient.size() - i - 1] != 0)
         {
-            cout<<quotient.getAt(quotient.size() - i - 1) <<endl;
-            
+            cout<<quotient[quotient.size() - i - 1] <<endl;
+            fout<< quotient[quotient.size() - i - 1] << endl;
         }
     }
     cout << endl;
     cout << "Остаток:";
+    fout<< "Остаток:";
     for (int i = 0; i < remainder.size(); i++)
     {
-        if (remainder.getAt(remainder.size() - i - 1) != 0)
+        if (remainder[remainder.size() - i - 1] != 0)
         {
-            cout<<remainder.getAt(remainder.size() - i - 1)<<endl;
+            cout<<remainder[remainder.size() - i - 1]<<endl;
+            fout<<remainder[remainder.size() - i - 1] << endl;
         }
     }
+    /*list l;
+    for (double x : dividend) {
+        l.push_back(x);
+    }
+    l.print();
+    cout << l[1]->val;*/
     
-    dividend.erase(2);
-    dividend.print();
 }
 
 
